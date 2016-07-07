@@ -39,12 +39,6 @@ Attempting to install the following dependencies:
 RSeQC
 
 Proceed with dependency installation? [y/n] 
-Pipeline RNA-seq-QC-metrics.py successfully installed.
-
-Attempting to install the following dependencies:
-RSeQC
-
-Proceed with dependency installation? [y/n] 
 ```
 
 Now the pipleline is ready for configuration.  Run the following command to configure the pipeline:

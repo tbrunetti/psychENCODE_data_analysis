@@ -23,4 +23,32 @@ In addtion to the software requirements stated above, the following files must b
 * genome annotations in refFlat format
 * reference gene model in BED-12 format
 
+####Installation and Configuration
+----------------------------------
+Assuming chunkypipes has been installed correctly, download RNA-seq-QC-metrics.py and run the following:
 
+```
+chunky install RNA-seq-QC-metrics.py
+```
+Upon successful installation, it should then ask the user whether the RSeQC dependecy should be intalled. If this dependency has already been installed the user can skip this step by selecting 'n' for no.
+
+```
+Pipeline RNA-seq-QC-metrics.py successfully installed.
+
+Attempting to install the following dependencies:
+RSeQC
+
+Proceed with dependency installation? [y/n] 
+Pipeline RNA-seq-QC-metrics.py successfully installed.
+
+Attempting to install the following dependencies:
+RSeQC
+
+Proceed with dependency installation? [y/n] 
+```
+
+Now the pipleline is ready for configuration.  Run the following command to configure the pipeline:
+```
+chunky configure RNA-seq-QC-metrics.py
+```
+This will then prompt the user to input the paths to a number of tools and files.

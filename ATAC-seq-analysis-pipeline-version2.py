@@ -137,7 +137,7 @@ class Pipeline(BasePipeline):
 			'num_reads_mapped': [],
 			'num_read_removed_steric_hinderence': '0'
 			'percent_duplicate_reads': '0',
-			'num_unique_reads_mapped': [], #TODO This isn't implemented
+			'num_unique_reads_mapped': [], #implemented
 			'num_mtDNA_reads_mapped': [],
 			'percent_mtDNA_reads_mapped': '0' ,
 			'num_reads_mapped_after_filtering': '-1', #TODO This isn't implemented
@@ -383,6 +383,26 @@ class Pipeline(BasePipeline):
 				Parameter('-o', unique_bam),
 				Parameter(duprm_bam)
 			)
+
+			# gets statistics on uniquely mapped reads
+			for i, unique_map in enumerate(unique_bam):
+				samtools_flagstat.run(
+					Parameter(unique_bam),
+					Redirect(stream=Redirect.STDOUT, dest=unique_bam + '.flagstat')
+				)
+
+				#QC: Get number of mapped reads from unique bams
+				try:
+					with open(unique_bam + '.flagstat') as flagstats:
+						unique_flagstats_contents = flagstats.read()
+						target_line = re.search(r'(\d+) \+ \d+ mapped', unique_flagstats_contents)
+						if target_line is not None:
+							qc_data['num_unique_reads_mapped'].append(str(int(target_line.group(1))/2))
+						else:
+							qc_data['num_unique_reads_mapped'].append('0')
+				except:
+					qc_data['num_unique_reads_mapped'] + '.flagstat'
+				))
 
 			# Remove unmapped reads
 			samtools_view.run(

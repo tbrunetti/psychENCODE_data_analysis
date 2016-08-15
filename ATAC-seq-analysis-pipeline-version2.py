@@ -57,7 +57,7 @@ class Pipeline(BasePipeline):
 		parser.add_argument('--output', required=True)
 		parser.add_argument('--lib', default=str(time.time()))
 		parser.add_argument('--step', default=0)
-		parser.add_argument('--foward-adapter', default='ZZZ')
+		parser.add_argument('--forward-adapter', default='ZZZ')
 		parser.add_argument('--reverse-adapter', default='ZZZ')
 		return parser
 

@@ -135,7 +135,7 @@ class Pipeline(BasePipeline):
 			'total_raw_reads_counts': [],
 			'trimmed_reads_counts': [],
 			'num_reads_mapped': [],
-			'num_read_removed_steric_hinderence': '0'
+			'num_read_removed_steric_hinderence': '0',
 			'percent_duplicate_reads': '0',
 			'num_unique_reads_mapped': [], #implemented
 			'num_mtDNA_reads_mapped': [],
@@ -338,7 +338,6 @@ class Pipeline(BasePipeline):
 				else:
 					total_reads += 1
 			#counts total number of chrM reads
-			total_mapped_reads = 
 			qc_data['num_mtDNA_reads_mapped'] = str(total_chrM)
 			qc_data['percent_mtDNA_reads_mapped'] = str(float(total_chrM)/float(total_chrM + not_chrM))
 
@@ -402,7 +401,6 @@ class Pipeline(BasePipeline):
 							qc_data['num_unique_reads_mapped'].append('0')
 				except:
 					qc_data['num_unique_reads_mapped'] + '.flagstat'
-				))
 
 			# Remove unmapped reads
 			samtools_view.run(

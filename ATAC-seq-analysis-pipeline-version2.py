@@ -81,7 +81,7 @@ class Pipeline(BasePipeline):
 				return False
 			return True
 
-		genome_sizes=[]
+		genome_sizes={}
 		with open(genome_sizes_filepath) as genome_sizes_file:
 			for line in genome_sizes_file:
 				chrom, size = line.strip().split('\t')
@@ -93,7 +93,7 @@ class Pipeline(BasePipeline):
 				record=line.strip('\n').split('\t')
 				chrom, start, end, strand = record[0], int(record[1]), int(record[2]), record[5]
 
-				if stand == '+':
+				if strand == '+':
 					new_start = start + plus_strand_shift
 					new_end = end + plus_strand_shift
 				elif strand == '-':
@@ -224,7 +224,7 @@ class Pipeline(BasePipeline):
 				read1, read2 = read_pair.split(':')
 				bwa_bam_output = os.path.join(output_dir, '{}.{}.bam'.format(lib_prefix, i))
 
-				bwa.sampe.run(
+				bwa_sampe.run(
 					Parameter('-a', '2000'), # Maximum insert size
 					Parameter('-n', '1'),
 					Parameter(pipeline_config['bwa']['index-dir']),
@@ -266,16 +266,16 @@ class Pipeline(BasePipeline):
 					))
 
 			sortmerged_bam = os.path.join(output_dir, '{}.sortmerged_bam'.format(lib_prefix))
-			steric_filter_bam = os.path.join(outdir, '{}.steric.bam'.format(lib_prefix))
+			steric_filter_bam = os.path.join(output_dir, '{}.steric.bam'.format(lib_prefix))
 			duprm_bam = os.path.join(output_dir, '{}.duprm.bam'.format(lib_prefix))
 			unique_bam = os.path.join(output_dir, '{}.unique.bam'.format(lib_prefix))
 			unmappedrm_bam = os.path.join(output_dir, '{}.unmappedrm.bam'.format(lib_prefix))
 			chrmrm_bam = os.path.join(output_dir, '{}.chrmrm.bam'.format(lib_prefix))
 			# binning read based off template size
-			nucleosome_free_reads = os.path.join(outdir, '{}.nucleosome_free.bam'.format(lib_prefix))
-			mononucleosome_reads = os.path.join(outdir, '{}.mononucleosome.bam'.format(lib_prefix))
-			dinucleosome_reads = os.path.join(outdir, '{}.dinucleosome.bam'.format(lib_prefix))
-			trinucleosome_reads = os.path.join(outdir, '{}.trinucleosome.bam'.format(lib_prefix))
+			nucleosome_free_reads = os.path.join(output_dir, '{}.nucleosome_free.bam'.format(lib_prefix))
+			mononucleosome_reads = os.path.join(output_dir, '{}.mononucleosome.bam'.format(lib_prefix))
+			dinucleosome_reads = os.path.join(output_dir, '{}.dinucleosome.bam'.format(lib_prefix))
+			trinucleosome_reads = os.path.join(output_dir, '{}.trinucleosome.bam'.format(lib_prefix))
 			chrM_bam = os.path.join(output_dir, '{}.chrM.bam'.format(lib_prefix))
 			
 			novosort.run(
@@ -283,30 +283,17 @@ class Pipeline(BasePipeline):
 				Parameter('--tmpcompression', '6'),
 				Parameter('--tmpdir', tmp_dir),
 				Parameter(*[bam for bam in bwa_bam_outs]),
-				Redirect(stream=Redirect.STOUT, dest=sortmerged_bam),
+				Redirect(stream=Redirect.STDOUT, dest=sortmerged_bam),
 				Redirect(stream=Redirect.STDERR, dest=os.path.join(logs_dir, 'novosort.log'))
 			)
 
 			# This creates a dependency on pysam
 			# Removes reads with template length < 38 due to steric hinderence
-			samtools_index.run(Paramter(sortmerged_bam))
+			samtools_index.run(Parameter(sortmerged_bam))
 			sortmerged_bam_alignmentfile = pysam.AlignmentFile(sortmerged_bam, 'rb')
 			steric_filter_bam_alignmentfile = pysam.AlignmentFile(steric_filter_bam, 'wb',
 																	template=sortmerged_bam_alignmentfile)
-			# Bins reads into 4 categories depending on template length read is derived from:
-			# 50-115 (nucleosome-free), 180-247 (mononucleosome), 315-473 (dinucleosome), 558-615 (trinucleosome)
-			nucleosome_free_reads_alignmentfile = pysam.AlignmentFile(nucleosome_free_reads, 'wb',
-																	template=sortmerged_bam_alignmentfile)
-			mononucleosome_reads_alignmentfile = pysam.AlignmentFile(mononucleosome_reads, 'wb',
-																	template=sortmerged_bam_alignmentfile)
-			dinucleosome_reads_alignmentfile = pysam.AlignmentFile(dinucleosome_reads, 'wb',
-																	template=sortmerged_bam_alignmentfile)
-			trinucleosome_reads_alignmentfile = pysam.AlignmentFile(trinucleosome_reads, 'wb',
-																	template=sortmerged_bam_alignmentfile)
 			
-			# Extract chrM into new BAM
-			chrM_reads_alignmentfile = pysam.AlignmentFile(chrM_bam, 'wb',
-														template=sortmerged_bam_alignmentfile)
 			num_removed=0
 			for read in sortmerged_bam_alignmentfile.fetch():
 				if abs(int(read.template_length)) >= STERIC_HINDRANCE_CUTOFF:
@@ -315,39 +302,9 @@ class Pipeline(BasePipeline):
 					num_removed += 1
 			qc_data['num_read_removed_steric_hinderence']=str(num_removed)
 			
-			# Binning of nucleosome reads
-			for read in sortmerged_bam_alignmentfile.fetch():
-				if abs(int(read.template_length)) >= 50 and abs(int(read.template_length)) <= 115:
-					nucleosome_free_reads_alignmentfile.write(read)
-				elif abs(int(read.template_length)) >= 180 and abs(int(read.template_length)) <= 247:
-					mononucleosome_reads_alignmentfile.write(read)
-				elif abs(int(read.template_length)) >= 315 and abs(int(read.template_length)) <= 473:
-					dinucleosome_reads_alignmentfile.write(read)
-				elif abs(int(read.template_length)) >= 558 and abs(int(read.template_length)) <= 615:
-					trinucleosome_reads_alignmentfile.write(read)
-				else:
-					continue;
-
-			#stores chrM reads in separate file
-			total_chrM = 0
-			not_chrM=0
-			for read in sortmerged_bam_alignmentfile.fetch():
-				if read.reference_name == 'chrM':
-					chrM_reads_alignmentfile.write(read)
-					total_chrM += 1
-				else:
-					total_reads += 1
-			#counts total number of chrM reads
-			qc_data['num_mtDNA_reads_mapped'] = str(total_chrM)
-			qc_data['percent_mtDNA_reads_mapped'] = str(float(total_chrM)/float(total_chrM + not_chrM))
-
+			
 			sortmerged_bam_alignmentfile.close()
 			steric_filter_bam_alignmentfile.close()
-			nucleosome_free_reads_alignmentfile.close()
-			mononucleosome_reads_alignmentfile.close()
-			dinucleosome_reads_alignmentfile.close()
-			trinucleosome_reads_alignmentfile.close()
-			chrM_reads_alignmentfile.close()
 
 			# Mark and remove MarkDuplicates
 			markduplicates_metrics_filepath = os.path.join(logs_dir, 'mark_dup.metrics')
@@ -402,6 +359,86 @@ class Pipeline(BasePipeline):
 				except:
 					qc_data['num_unique_reads_mapped'] + '.flagstat'
 
+			# make AlignmentFile object to extract binned reads and chrM reads from the unique bam
+			samtools_index.run(Parameter(unique_bam))
+			unique_bam_alignmentfile = pysam.AlignmentFile(unique_bam, 'rb')
+			# Bins reads into 4 categories depending on template length read is derived from:
+			# 50-115 (nucleosome-free), 180-247 (mononucleosome), 315-473 (dinucleosome), 558-615 (trinucleosome)
+			nucleosome_free_reads_alignmentfile = pysam.AlignmentFile(nucleosome_free_reads, 'wb',
+																	template=unique_bam_alignmentfile)
+			mononucleosome_reads_alignmentfile = pysam.AlignmentFile(mononucleosome_reads, 'wb',
+																	template=unique_bam_alignmentfile)
+			dinucleosome_reads_alignmentfile = pysam.AlignmentFile(dinucleosome_reads, 'wb',
+																	template=unique_bam_alignmentfile)
+			trinucleosome_reads_alignmentfile = pysam.AlignmentFile(trinucleosome_reads, 'wb',
+																	template=unique_bam_alignmentfile)
+			
+			# Extract chrM into new BAM
+			chrM_reads_alignmentfile = pysam.AlignmentFile(chrM_bam, 'wb',
+														template=unique_bam_alignmentfile)
+
+			# Binning of nucleosome reads
+			for read in unique_bam_alignmentfile.fetch():
+				if abs(int(read.template_length)) >= 50 and abs(int(read.template_length)) <= 115:
+					nucleosome_free_reads_alignmentfile.write(read)
+				elif abs(int(read.template_length)) >= 180 and abs(int(read.template_length)) <= 247:
+					mononucleosome_reads_alignmentfile.write(read)
+				elif abs(int(read.template_length)) >= 315 and abs(int(read.template_length)) <= 473:
+					dinucleosome_reads_alignmentfile.write(read)
+				elif abs(int(read.template_length)) >= 558 and abs(int(read.template_length)) <= 615:
+					trinucleosome_reads_alignmentfile.write(read)
+				else:
+					continue;
+
+			#stores chrM reads in separate file
+			for read in unique_bam_alignmentfile.fetch():
+				if read.reference_name == 'chrM':
+					chrM_reads_alignmentfile.write(read)
+	
+			nucleosome_free_reads_alignmentfile.close()
+			mononucleosome_reads_alignmentfile.close()
+			dinucleosome_reads_alignmentfile.close()
+			trinucleosome_reads_alignmentfile.close()
+			chrM_reads_alignmentfile.close()
+			
+			# gets series of flagstats results for non-main files
+			samtools_flagstat.run(
+					Parameter(nucleosome_free_reads),
+					Redirect(stream=Redirect.STDOUT, dest=nucleosome_free_reads + '.flagstat'))
+
+			samtools_flagstat.run(
+					Parameter(mononucleosome_reads),
+					Redirect(stream=Redirect.STDOUT, dest=mononucleosome_reads + '.flagstat'))
+
+			samtools_flagstat.run(
+					Parameter(dinucleosome_reads),
+					Redirect(stream=Redirect.STDOUT, dest=dinucleosome_reads + '.flagstat'))
+
+			samtools_flagstat.run(
+					Parameter(trinucleosome_reads),
+					Redirect(stream=Redirect.STDOUT, dest=trinucleosome_reads + '.flagstat'))
+
+			
+			# gets statistics on chrM mapped reads
+			samtools_index.run(Parameter(chrM_bam))
+			for i, chrM_map in enumerate(chrM_bam):
+				samtools_flagstat.run(
+					Parameter(chrM_bam),
+					Redirect(stream=Redirect.STDOUT, dest=chrM_bam + '.flagstat')
+				)
+				try:
+					with open(chrM_bam + '.flagstat') as flagstats:
+						chrM_flagstats_contents = flagstats.read()
+						target_line = re.search(r'(\d+) \+ \d+ mapped', chrM_flagstats_contents)
+						if target_line is not None:
+							qc_data['num_mtDNA_reads_mapped'].append(str(int(target_line.group(1))/2))
+						else:
+							qc_data['num_mtDNA_reads_mapped'].append('0')
+				except:
+					qc_data['num_mtDNA_reads_mapped'] + '.flagstat'
+
+
+
 			# Remove unmapped reads
 			samtools_view.run(
 				Parameter('-b'),
@@ -440,12 +477,12 @@ class Pipeline(BasePipeline):
 			# Generate filename for final processed BAM and BED
 			processed_bam = os.path.join(output_dir, '{}.processed.bam'.format(lib_prefix))
 			unshifted_bed = os.path.join(output_dir, '{}.unshifted_bed'.format(lib_prefix))
-			processed_bam = os.path.join(output_dir, '{}.processed.bed'.format(lib_prefix))
+			processed_bed = os.path.join(output_dir, '{}.processed.bed'.format(lib_prefix))
 
 			# staging_delete.append(unshifted_bed)
 
 			# Generate filename for chrM removed BAM
-			chrmrm_bam = os.path.join(output_dir, '{}.chrmrm_bam'.format(lib_prefix))
+			chrmrm_bam = os.path.join(output_dir, '{}.chrmrm.bam'.format(lib_prefix))
 
 			# Remove blacklisted genomic regions
 			bedtools_intersect.run(
@@ -483,7 +520,7 @@ class Pipeline(BasePipeline):
 				input_bed_filepath=unshifted_bed,
 				output_bed_filepath=processed_bed,
 				log_filepath=os.path.join(logs_dir, 'shift_reads.logs'),
-				genome_sizes_filepath=pipeline_config['bedtools']['genome_sizes'],
+				genome_sizes_filepath=pipeline_config['bedtools']['genome-sizes'],
 				minus_strand_shift=MINUS_STRAND_SHIFT,
 				plus_strand_shift=PLUS_STRAND_SHIFT
 			)
@@ -491,7 +528,7 @@ class Pipeline(BasePipeline):
 		# Peak-calling; MACS2
 		if step <= 6:
 			# for regular peak calling, including narrow, default q-value=0.01
-			processed_bed = os.path.join(output_dir, '{}.processed_bed'.format(lib_prefix))
+			processed_bed = os.path.join(output_dir, '{}.processed.bed'.format(lib_prefix))
 			macs2_callpeak.run(
 				Parameter('-t', processed_bed),
 				Parameter('-f', 'BED'),
@@ -502,7 +539,7 @@ class Pipeline(BasePipeline):
 				Parameter('--shift', '-100'),
 				Parameter('-B', '--SPMR'), # Generates pileup tracks, bedgraph, fragment pileup per million reads
 				Parameter('--call-summits'),
-				Parameter('--keep-dup all')
+				Parameter('--keep-dup', 'all')
 			)
 
 			#for broad peak calling, q-value=0.05 per MACS2 suggestion on broad peaks
@@ -511,12 +548,12 @@ class Pipeline(BasePipeline):
 				Parameter('-f', 'BED'),
 				Parameter('-g', 'hs'),
 				Parameter('-n', str(processed_bed) + '_broad_peak_calls'),
+				Parameter('-q', '0.05'),
 				Parameter('--nomodel'),
 				Parameter('--extsize', '200'),
 				Parameter('--shift', '-100'),
 				Parameter('--broad'),
-				Parameter('--keep-dup all'),
-				Parameter('-q', '0.05')
+				Parameter('--keep-dup', 'all')
 			)
 
 		# QC: Output QC data to file

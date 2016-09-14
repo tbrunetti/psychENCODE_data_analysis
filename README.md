@@ -15,7 +15,7 @@ This is a pipline that is designed to use various metrics to obtain quality cont
  * Upon pipeline configuration, this requirement can be satisfied automatically
 
 
-####User generated File Requirements
+####User Generated File Requirements
 ------------------------------------
 In addtion to the software requirements stated above, the following files must be generated and provided by the user:
 * reference genome in a single FASTA file, as well as corresponding dictionary and .fai files in the same directory
@@ -46,3 +46,10 @@ Now the pipleline is ready for configuration.  Run the following command to conf
 chunky configure RNA-seq-QC-metrics.py
 ```
 This will then prompt the user to input the paths to a number of tools and files.
+
+
+##ATAC-seq-analysis-pipeline-version2.py and ATAC-seq-analysis-pipeline-version3-bedpe.py
+------------------------------------------------------------------------------------------
+A pipeline to process ATAC-seq data and generate peak files of chromatin accessibility.  In version2, peaks called are processed using single-end reads despite inputing paired-end data.  Version3-bedpe, generates peaks using paired-end data information.
+
+

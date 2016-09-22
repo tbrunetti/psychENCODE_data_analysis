@@ -52,4 +52,6 @@ This will then prompt the user to input the paths to a number of tools and files
 ------------------------------------------------------------------------------------------
 A pipeline to process ATAC-seq data and generate peak files of chromatin accessibility.  In version2, peaks called are processed using single-end reads despite inputing paired-end data.  Version3-bedpe, generates peaks using paired-end data information.
 
-
+##IDR_ATACseq_pipeline_bedpe.py
+--------------------------------
+Processes the IDR of pseudo-replicates of a given sample of ATAC-seq dat.  Uses paired-end data as input.

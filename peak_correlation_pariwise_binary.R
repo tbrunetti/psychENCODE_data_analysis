@@ -13,12 +13,12 @@ colnames(custom_corr_matrix) <- colnames(transposed_data)
 
 for (i in 1:nrow(custom_corr_matrix)){
   for (j in 1:ncol(custom_corr_matrix)){
+    message(sprintf("Progress is at row %s and col %s out of the %s by %s matrix", i, j, nrow(custom_corr_matrix), ncol(custom_corr_matrix)))
     corr_list_first <- list()
     corr_list_second <- list()
     # extracts column and row names
     first_sample <- rownames(custom_corr_matrix)[i]
     second_sample <- colnames(custom_corr_matrix)[j]
-  
     # if both are equal to 0, then remove the peak, else add peak to list   
     for (x in 1:nrow(transposed_data)){
       if ((transposed_data[first_sample][x,]==0) & (transposed_data[second_sample][x,]==0)){

@@ -38,5 +38,5 @@ for (i in 1:nrow(custom_corr_matrix)){
 
 # take absolute value to convert all to positive values (removing double zeros gets all neg values, no std-dev??)
 custom_corr_matrix[is.na(custom_corr_matrix)] <- 1
-corrplot(abs(as.matrix(custom_corr_matrix)), method="color", type="upper", order = "hclust")
+corrplot(abs(as.matrix(custom_corr_matrix)), method="color", type="upper", order = "hclust", tl.col = "black")
 

@@ -1,0 +1,8 @@
+library(corrplot)
+example(pairs)
+png(filename="/data/user/tbrunetti/correlations_narrow_bed_peaks.png")
+matrixFileBed <- read.table("71_bed.matrix")
+matrixFileBed <- as.data.frame(matrixFileBed)
+spearmanCor <- cor(matrixFileBed, method="spearman")
+corrplot(spearmanCor, method="number")
+dev.off()

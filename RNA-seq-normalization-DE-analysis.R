@@ -5,23 +5,47 @@ library(data.table)
 source("https://bioconductor.org/biocLite.R")
 biocLite("DESeq2")
 library("DESeq2")
+library(limma)
 
+# ------------------------PCA portion-----------------------------
+# same metadata sheet as below, except everything is numerically converted
+metadata_for_PCA <- read.table("/home/tonya/synapse-meta-clinical-technical-data-BrainGVEX-RNAseq_numerically_converted_noKey.csv", header=TRUE, row.names=1, check.names=FALSE, sep=",")
+
+# remove BIDs that will not be used in downstream analysis
+metadata_for_PCA <- metadata_for_PCA[!rownames(metadata_for_PCA) %in% c('2015-1', '2015-739', '2015-2883', '2016-1531', '2016-1532'), ]
+
+
+
+
+
+
+
+
+
+#-----------------gene expression analysis portion (DE)----------------------
 total_raw_counts <- read.table("/home/tonya/Desktop/express_effective_counts_matix", header=TRUE, row.names=1, check.names=FALSE)
-metadata <- read.table("synapse-meta-clinical-technical-data-BrainGVEX-RNAseq.csv", header=TRUE, row.names=1, check.names=FALSE)
+metadata <- read.table("synapse-meta-clinical-technical-data-BrainGVEX-RNAseq.csv", header=TRUE, row.names=1, check.names=FALSE, sep=",")
 total_raw_read_counts_dataframe <- as.data.frame(total_raw_counts)
 metadata_dataframe <- as.data.frame(metadata)
 
-# remove genes where all samples have zero reads
-remove_zeros <- total_raw_read_counts_dataframe[rowSums(total_raw_read_counts_dataframe)!=0, ]
+# remove samples now that you don't want to use for analysis
+total_raw_read_counts_dataframe <- within(total_raw_read_counts_dataframe, rm('2015-1', '2015-739', '2015-2883', '2016-1531', '2016-1532'))
+metadata_dataframe <- metadata_dataframe[!rownames(metadata_dataframe) %in% c('2015-1', '2015-739', '2015-2883', '2016-1531', '2016-1532'), ]
 
-#transpose dataframe so genes names across top, samples names named in rows
-reformatted_total_raw_reads_dataframe <- t(remove_zeros)
-# prevent log(0), add a read count to every raw count
-added_pseudocount <- reformatted_total_raw_reads_dataframe + 1
-# log transform data
-log_data <- log(added_pseudocount)
+# sorts dataframes so columns and rows are in same BID order for count data and metadata
+counts_sorted <- total_raw_read_counts_dataframe[,order(colnames(total_raw_read_counts_dataframe))]
+metadata_sorted <- metadata_dataframe[order(rownames(metadata_dataframe)),]
 
-# calculate principal components
-prin_comps <- prcomp(log_data, center=TRUE, scale.=TRUE)
-# print out most important components
-summary(prin_comps)
+# below statement should result in TRUE, else the two dataframes are not properly sorted
+all(rownames(metadata_sorted)==colnames(counts_sorted))
+
+
+deseq_obj <- DESeqDataSetFromMatrix(countData= counts_sorted, colData=metadata_sorted , design = ~ Diagnosis )
+#set comparison reference/control
+deseq_obj$Diagnosis <- relevel(factor(deseq_obj$Diagnosis), ref="Control")
+
+# pre-filtering, remove rows in count data with 0 or 1 reads
+deseq_obj <- deseq_obj[rowSums(counts(deseq_obj)) > 1, ]
+
+# perform DE analysis (size factors, dispersion, negative binomial distribution)
+deseq_obj <- DESeq(deseq_obj)

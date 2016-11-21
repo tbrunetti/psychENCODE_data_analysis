@@ -81,8 +81,8 @@ class Pipeline(BasePipeline):
 		split_reads.communicate()
 		
 		# gzip and rename split reads pseudo replicate tagAlign files
-		subprocess.call(['gzip', str(pipeline_args['outDir']+str(bamName[:-4]))+'00'], stdout=open(pipeline_args['outDir']+str(bamName[:-4])+'00'+'.gz', 'w'))
-		subprocess.call(['gzip', str(pipeline_args['outDir']+str(bamName[:-4]))+'01'], stdout=open(pipeline_args['outDir']+str(bamName[:-4])+'01'+'.gz', 'w'))
+		subprocess.call(['gzip', str(pipeline_args['outDir']+str(bamName[:-4]))+'00'])
+		subprocess.call(['gzip', str(pipeline_args['outDir']+str(bamName[:-4]))+'01'])
 		subprocess.call(['mv', str(pipeline_args['outDir']+str(bamName[:-4]))+'00'+'.gz', str(pipeline_args['outDir']+str(bamName[:-4]))+'.pr1.tagAlign.gz'])
 		subprocess.call(['mv', str(pipeline_args['outDir']+str(bamName[:-4]))+'01'+'.gz', str(pipeline_args['outDir']+str(bamName[:-4]))+'.pr2.tagAlign.gz'])
 

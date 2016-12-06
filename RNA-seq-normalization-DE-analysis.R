@@ -1,25 +1,11 @@
 # if using half-rack VM, enviromental proxy setting is required
-Sys.setenv(http_proxy="http://cloud-proxy:3128")
-Sys.setenv(https_proxy="http://cloud-proxy:3128")
+#Sys.setenv(http_proxy="http://cloud-proxy:3128")
+#Sys.setenv(https_proxy="http://cloud-proxy:3128")
 library(data.table)
 source("https://bioconductor.org/biocLite.R")
 biocLite("DESeq2")
 library("DESeq2")
 library(limma)
-
-# ------------------------PCA portion-----------------------------
-# same metadata sheet as below, except everything is numerically converted
-metadata_for_PCA <- read.table("/home/tonya/synapse-meta-clinical-technical-data-BrainGVEX-RNAseq_numerically_converted_noKey.csv", header=TRUE, row.names=1, check.names=FALSE, sep=",")
-
-# remove BIDs that will not be used in downstream analysis
-metadata_for_PCA <- metadata_for_PCA[!rownames(metadata_for_PCA) %in% c('2015-1', '2015-739', '2015-2883', '2016-1531', '2016-1532'), ]
-
-
-
-
-
-
-
 
 
 #-----------------gene expression analysis portion (DE)----------------------
@@ -40,8 +26,9 @@ metadata_sorted <- metadata_dataframe[order(rownames(metadata_dataframe)),]
 all(rownames(metadata_sorted)==colnames(counts_sorted))
 
 
-deseq_obj <- DESeqDataSetFromMatrix(countData= counts_sorted, colData=metadata_sorted , design = ~ Diagnosis )
+deseq_obj <- DESeqDataSetFromMatrix(countData= counts_sorted, colData=metadata_sorted , design = ~ LibraryBatch + FlowcellBatch + BrainBank + UF_MEDIAN_5PRIME_BIAS + UF_MEDIAN_5PRIME_TO_3PRIME_BIAS + UF_MEDIAN_3PRIME_BIAS + RIN + Average_bp_size_of_Library + ERCC_Added + TissueState + Final_Bead_Size_Selection_Ratio + Diagnosis )
 #set comparison reference/control
+print("Releveling reference to Control")
 deseq_obj$Diagnosis <- relevel(factor(deseq_obj$Diagnosis), ref="Control")
 
 # pre-filtering, remove rows in count data with 0 or 1 reads
@@ -49,3 +36,27 @@ deseq_obj <- deseq_obj[rowSums(counts(deseq_obj)) > 1, ]
 
 # perform DE analysis (size factors, dispersion, negative binomial distribution)
 deseq_obj <- DESeq(deseq_obj)
+
+de_results <- results(deseq_obj)
+resOrdered <- de_results[order(de_results$padj),]
+summary(results)
+write.csv(as.data.frame(resOrdered), file="/data/users/tbrunetti/UC-UIC-covariates-added-to-model-testing-condition.csv")
+
+#those adj p-value of <0.05
+res05 <- results(deseq_obj, alpha=0.05)
+summary(res05)
+adj05 <- subset(resOrdered, padj < 0.05)
+write.csv(as.data.frame(adj05), file="/data/users/tbrunetti/UC-UIC-covariates-added-to-model-testing-condition-less-pval-0.05.csv")
+
+
+#those adj p-value of <0.01
+res01 <- results(deseq_obj, alpha=0.01)
+summary(res01)
+adj01 <- subset(resOrdered, padj < 0.01)
+write.csv(as.data.frame(adj01), file="/data/users/tbrunetti/UC-UIC-covariates-added-to-model-testing-condition-less-pval-0.01.csv")
+
+
+
+# output normalized count data
+norm_counts <- counts(deseq_obj, normalized=TRUE)
+write.csv(norm_counts, file='/data/users/tbrunetti/UC-UIC-deseq2-normalized-counts-added-covariates-to-model.csv')

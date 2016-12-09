@@ -6,6 +6,9 @@ source("https://bioconductor.org/biocLite.R")
 biocLite("DESeq2")
 library("DESeq2")
 library(limma)
+library("BiocParallel")
+# number refers to the number or threads/processors to run analysis on (parallelization)
+register(MulticoreParam(7))
 
 
 #-----------------gene expression analysis portion (DE)----------------------

@@ -38,9 +38,9 @@ deseq_obj$Diagnosis <- relevel(factor(deseq_obj$Diagnosis), ref="Control")
 deseq_obj <- deseq_obj[rowSums(counts(deseq_obj)) > 1, ]
 
 # perform DE analysis (size factors, dispersion, negative binomial distribution)
-deseq_obj <- DESeq(deseq_obj)
+deseq_obj <- DESeq(deseq_obj, parallel = TRUE)
 
-de_results <- results(deseq_obj)
+de_results <- results(deseq_obj, parallel = TRUE)
 resOrdered <- de_results[order(de_results$padj),]
 summary(results)
 write.csv(as.data.frame(resOrdered), file="/data/users/tbrunetti/UC-UIC-covariates-added-to-model-testing-condition.csv")

@@ -11,6 +11,15 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 * novosort (http://www.novocraft.com/products/novosort/)
 * picard (https://broadinstitute.github.io/picard/)
 * samtools (http://samtools.sourceforge.net)
-* bedtools; must be version >=2.25.0 (http://bedtools.readthedocs.io/en/latest/)
+* bedtools (http://bedtools.readthedocs.io/en/latest/)
+  * must be version >=2.25.0
 * macs2 (https://pypi.python.org/pypi/MACS2)
 
+####User Generated/Provided File Requirements
+----------------------------------------------
+* fasta of reference genome indexed by bwa
+* bed file of blacklisted genomic regions
+  * This file can be downloaded from mod/mouse/humanENCODE
+  * https://sites.google.com/site/anshulkundaje/projects/blacklists
+* genome size file (i.e. chrID followed by size_ofChromosome)
+  * This file can be downloaded from UCSC

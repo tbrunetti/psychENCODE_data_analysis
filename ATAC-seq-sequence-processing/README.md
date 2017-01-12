@@ -21,5 +21,22 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 * bed file of blacklisted genomic regions
   * This file can be downloaded from mod/mouse/humanENCODE
   * https://sites.google.com/site/anshulkundaje/projects/blacklists
-* genome size file (i.e. chrID followed by size_ofChromosome)
+* genome size file (i.e. chrID followed by size_of_chromosome)
   * This file can be downloaded from UCSC
+
+####Installation and Configuration
+----------------------------------
+Either download the pipleline version that would like to be used or clone the repository into your own directory. 
+```
+mkdir ~/my_project
+cd ~/my_project
+git clone https://github.com/tbrunetti/psychENCODE_data_analysis.git
+cd ATAC-seq-sequence-processing
+```
+Assuming chunkypipes has been installed correctly, run the following:
+
+```
+chunky install ATAC-seq-analysis-pipeline-version3-bedpe.py
+
+```
+

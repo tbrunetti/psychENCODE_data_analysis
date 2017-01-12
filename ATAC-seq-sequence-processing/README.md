@@ -4,6 +4,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 
 ####Software Requirements
 -------------------------
+* Python minimum requirement 2.7.6 
 * chunkypipes (http://chunky-pipes.readthedocs.io/en/stable/getting_started.html)
 * cutadapt (http://cutadapt.readthedocs.io/en/stable/installation.html)
 * fastqc (http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
@@ -43,7 +44,7 @@ If the installation was successful the following message will appear:
 ```
 Pipeline ATAC-seq-analysis-pipeline-version3-bedpe.py successfully installed.
 ```
-Additionally, you should notice post installation the creation of the file ATAC-seq-analysis-pipeline-version3-bedpe.pyc.  This is the configuration file for the installed pipeline.  In order to configure the pipeline, run the following command:
+Post-installation, the file ATAC-seq-analysis-pipeline-version3-bedpe.pyc is created.  This is the configuration file for the installed pipeline.  In order to configure this file, run the following command:
 ```
 chunky configure ATAC-seq-analysis-pipeline-version3-bedpe.py
 ```
@@ -64,4 +65,15 @@ Full path to a genome sizes file []:
 Full path to the BED of blacklisted genomic regions []: 
 Configuration file successfully written.
 ```
-The user will notice that once the information is recorded, chunkypipes will state "Configuration file successfully written" to notify the user the configuration has been successfully modified and  saved.
+The user will notice that once the information is recorded, chunkypipes will state "Configuration file successfully written" to notify the user the configuration has been successfully modified and  saved. This file only needs to be configured once, unless the paths to these files has changed or if a different number of threads is to be used.
+
+####Running the Pipeline
+-------------------------
+Both pipelines are equipped with a -h or --help flag for details on default parameters and user options.  An example of how to run this is shown below:
+```
+chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py -h
+```
+The minimum required arguments is the --reads flag and the --output flag. Reads needs to be in fastq format with the name of the forward pairs followed by a colon followed by the name of the respective reverse pairs.  The output should be the full path the the desired user generated output directory.
+```
+chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py --reads forwardReads.fastq:reverseReads.fastq --output ~/my_results
+```

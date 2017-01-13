@@ -1,10 +1,14 @@
-##ATAC-seq-analysis-pipeline-version2.py and ATAC-seq-analysis-pipeline-version3-bedpe.py
+#ATAC-seq-analysis-pipeline-version2.py and ATAC-seq-analysis-pipeline-version3-bedpe.py
 ------------------------------------------------------------------------------------------
 A pipeline to process ATAC-seq data and generate peak files of chromatin accessibility.  In version2, peaks called are processed using single-end reads despite inputing paired-end data.  Version3-bedpe, generates peaks using paired-end data information.
 
-####Software Requirements
+###Overview
+-----------
+
+
+###Software Requirements
 -------------------------
-* Python minimum requirement 2.7.6 
+* Python minimum version requirement 2.7.6 
 * chunkypipes (http://chunky-pipes.readthedocs.io/en/stable/getting_started.html)
 * cutadapt (http://cutadapt.readthedocs.io/en/stable/installation.html)
 * fastqc (http://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
@@ -16,7 +20,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
   * must be version >=2.25.0
 * macs2 (https://pypi.python.org/pypi/MACS2)
 
-####User Generated/Provided File Requirements
+###User Generated/Provided File Requirements
 ----------------------------------------------
 * fasta of reference genome indexed by bwa
 * bed file of blacklisted genomic regions
@@ -25,7 +29,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 * genome size file (i.e. chrID followed by size_of_chromosome)
   * This file can be downloaded from UCSC
 
-####Installation and Configuration
+###Installation and Configuration
 ----------------------------------
 Either download the pipleline version that would like to be used or clone the repository into your own directory. 
 ```
@@ -67,13 +71,35 @@ Configuration file successfully written.
 ```
 The user will notice that once the information is recorded, chunkypipes will state "Configuration file successfully written" to notify the user the configuration has been successfully modified and  saved. This file only needs to be configured once, unless the paths to these files has changed or if a different number of threads is to be used.
 
-####Running the Pipeline
+###Running the Pipeline
 -------------------------
-Both pipelines are equipped with a -h or --help flag for details on default parameters and user options.  An example of how to run this is shown below:
+Both pipelines are equipped with a -h or --help flag for details on default parameters and user options.  An example of how to use this is shown below:
 ```
 chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py -h
 ```
-The minimum required arguments is the --reads flag and the --output flag. Reads needs to be in fastq format with the name of the forward pairs followed by a colon followed by the name of the respective reverse pairs.  The output should be the full path the the desired user generated output directory.
+The minimum required arguments is the --reads flag and the --output flag. Reads needs to be in fastq format with the name of the forward pairs followed by a colon followed by the name of the respective reverse pairs.  The output should be the full path to the desired user generated output directory.
 ```
 chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py --reads forwardReads.fastq:reverseReads.fastq --output ~/my_results
 ```
+__***Optional Arguments***__
+* --lib
+Specifiy the name of sample; default is wall-time as sample name
+* --forward-adapter
+specify adapter sequence on forward strand; default is none
+* --reverse-adapter
+specify adapter sequence on reverse strand; default is none
+
+###Pipeline Output
+------------------
+
+sample_name.0.
+sample_name.chrM.
+sample_name.nucleosome_free
+sample_name.mononucleosome
+sample_name.dinucleosome
+sample_name.trinucleosome
+sample_name.unique
+sample_name.unshifted_bedpe
+sample_name.processed
+fastqc directory
+logs directory

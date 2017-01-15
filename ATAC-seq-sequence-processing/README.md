@@ -82,12 +82,17 @@ The minimum required arguments is the --reads flag and the --output flag. Reads 
 chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py --reads forwardReads.fastq:reverseReads.fastq --output ~/my_results
 ```
 __***Optional Arguments***__
-* --lib
-Specifiy the name of sample; default is wall-time as sample name
-* --forward-adapter
-specify adapter sequence on forward strand; default is none
-* --reverse-adapter
-specify adapter sequence on reverse strand; default is none
+* --lib   *Specifiy the name of sample; default is wall-time as sample name*
+* --forward-adapter   *specify adapter sequence on forward strand; default is none*
+* --reverse-adapter   *specify adapter sequence on reverse strand; default is none*
+
+__***Default Software Parameters***__
+* cutadapt
+* bwa
+* samtools
+* bedtools
+* Picard
+* macs2
 
 ###Pipeline Output
 ------------------

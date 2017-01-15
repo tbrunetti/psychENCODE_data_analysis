@@ -4,7 +4,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 
 ###Overview
 -----------
-![Alt text](/home/tonya/psych_ENCODE/ATAC-seq-pipeline-overview.jpg)
+![Alt text](/home/tonya/github_repositories/psychENCODE_data_analysis/ATAC-seq-sequence-processing/ATAC-seq-pipeline-overview.jpg)
 
 ###Software Requirements
 -------------------------

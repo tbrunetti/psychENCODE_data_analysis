@@ -107,12 +107,11 @@ __***Default Software Parameters***__
   * *intersect (for use in blacklisted genomic regions)*
     * -v
     * -f 0.5 (50% minimum overlap required)
-
 * Picard
   * REMOVE_DUPLICATES=true
   * VALIDATION_STRINGENCY=LENIENT
-* macs2   
-MACS2 is called a total of 4 times.  Twice of BED and twice for BEDPE.  Note this is NOT the same BEDPE adopted by most genome centers.  This BEDPE is specially formatted for MACS2 specifications.
+* MACS2   
+MACS2 is called a total of 4 times.  Twice for BED and twice for BEDPE.  Note this is NOT the same BEDPE adopted by most genome centers.  This BEDPE is specially formatted for MACS2 specifications.
 
   * *narrow peaks (default q-value=0.01)*
     * --nomodel

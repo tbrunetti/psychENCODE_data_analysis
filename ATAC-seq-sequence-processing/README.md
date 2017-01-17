@@ -130,15 +130,19 @@ MACS2 is called a total of 4 times.  Twice for BED and twice for BEDPE.  Note th
 
 ###Pipeline Output
 ------------------
+__***sample_name.<int>.bam***__ is the most unprocessed bam file with no altercations or cleaning  
+__***sample.name.processed.bam***__ is the most processed bam file and is the bam ultimately used for all end analysis  
+__***sample.name.unique.bam***__ is the bam where everything is processed down to the unique reads except unmapped reads, chrM, and blacklisted regions  have not yet been removed.  
 
-sample_name.0.
-sample_name.chrM.
-sample_name.nucleosome_free
-sample_name.mononucleosome
-sample_name.dinucleosome
-sample_name.trinucleosome
-sample_name.unique
-sample_name.unshifted_bedpe
-sample_name.processed
-fastqc directory
-logs directory
+The following bam files are the binned reads and each has their own set of flagstats:
+* sample_name.chrM
+* sample_name.nucleosome_free
+* sample_name.mononucleosome
+* sample_name.dinucleosome
+* sample_name.trinucleosome
+
+__***sample_name.unshifted***__ are reads that come from the final processed bam file but have not yet been shifted to correct for transposase cutting  
+
+__***fastqc directory***__ directory containing all the FastQC results  
+__***logs directory***__ directory that contains quality control information and picard statistics
+

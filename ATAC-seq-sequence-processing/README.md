@@ -82,17 +82,52 @@ The minimum required arguments is the --reads flag and the --output flag. Reads 
 chunky run ATAC-seq-analysis-pipeline-version3-bedpe.py --reads forwardReads.fastq:reverseReads.fastq --output ~/my_results
 ```
 __***Optional Arguments***__
-* --lib   *Specifiy the name of sample; default is wall-time as sample name*
-* --forward-adapter   *specify adapter sequence on forward strand; default is none*
-* --reverse-adapter   *specify adapter sequence on reverse strand; default is none*
+* **--lib**   *Specifiy the name of sample; default is wall-time as sample name*
+* **--forward-adapter**   *specify adapter sequence on forward strand; default is none*
+* **--reverse-adapter**   *specify adapter sequence on reverse strand; default is none*
 
 __***Default Software Parameters***__
 * cutadapt
+  * minimum read length of 5 bp
+  * minimum quality score of 30 
 * bwa
+  * maximum alignments to output is 1
+  * maximum insert size for proper mapping is 2000
 * samtools
+  * *For uniquely mapped reads:*
+    * -F 256 (not primary alignment)
+    * skip alignments with MAPQ smaller than 10
+  * *For removing unmapped reads:*
+    * -F 12 (read unmapped/mate unmapped)
+  * *For converting BAM to BEDPE*
+    * -uf 0x2 (properly paired reads only)
+    * -F 1548 (read/mate unmapped, fails quality checks, read is PCR/optical duplicate)
+    * skip alignments with score less than 30
 * bedtools
+  * *intersect (for use in blacklisted genomic regions)*
+    * -v
+    * -f 0.5 (50% minimum overlap required)
+
 * Picard
-* macs2
+  * REMOVE_DUPLICATES=true
+  * VALIDATION_STRINGENCY=LENIENT
+* macs2   
+MACS2 is called a total of 4 times.  Twice of BED and twice for BEDPE.  Note this is NOT the same BEDPE adopted by most genome centers.  This BEDPE is specially formatted for MACS2 specifications.
+
+  * *narrow peaks (default q-value=0.01)*
+    * --nomodel
+    * --extsize 200
+    * --shift -100
+    * -B --SPMR (bedgraph pileup tracks)
+    * --call-summits
+    * --keep-dup all
+  * *broad peaks*
+    * -q 0.05
+    * --nomodel
+    * --extsize 200
+    * --shift -100
+    * --broad
+    * --keep-dup all
 
 ###Pipeline Output
 ------------------

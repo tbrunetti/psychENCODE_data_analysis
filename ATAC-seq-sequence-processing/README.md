@@ -38,7 +38,7 @@ cd ~/my_project
 git clone https://github.com/tbrunetti/psychENCODE_data_analysis.git
 cd ATAC-seq-sequence-processing
 ```
-Assuming chunkypipes has been installed correctly, run the following:
+Assuming chunkypipes has been installed correctly, see the following link for more information (http://chunky-pipes.readthedocs.io/en/stable/getting_started.html), run the following:
 
 ```
 chunky install ATAC-seq-analysis-pipeline-version3-bedpe.py

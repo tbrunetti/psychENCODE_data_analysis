@@ -366,3 +366,7 @@ for (pc in seq(1,dim(pca_matrix$rotation)[2])){
 
 # call function again on regressed out variables
 model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: FlowcellBatch, Sex, UF 5-3 bias, RIN, PMI", side=3, line=0)
+# saves and closes newly created PDF
+dev.off()

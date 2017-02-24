@@ -1,3 +1,6 @@
+# if using half-rack VM, enviromental proxy setting is required
+#Sys.setenv(http_proxy="http://cloud-proxy:3128")
+#Sys.setenv(https_proxy="http://cloud-proxy:3128")
 #prcomp is used instread of princomp here to perform PCA since:
 # 1) princomp is limited to experiments where observations >> variables
 # 2) prcomp can be used to easily visualize clusters using PCs and metadata

@@ -5,7 +5,21 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 ###Overview
 -----------
 ![Alt text](https://github.com/tbrunetti/psychENCODE_data_analysis/blob/master/ATAC-seq-sequence-processing/ATAC-seq-pipeline-overview.jpg)
-
+<img id="Image-Maps-Com-image-maps-2017-03-13-141156" src="https://github.com/tbrunetti/psychENCODE_data_analysis/blob/master/ATAC-seq-sequence-processing/ATAC-seq-pipeline-overview.jpg" border="0" width="794" height="1058" orgWidth="794" orgHeight="1058" usemap="#image-maps-2017-03-13-141156" alt="" />
+<map name="image-maps-2017-03-13-141156" id="ImageMapsCom-image-maps-2017-03-13-141156">
+<area  alt="" title="remove_adapters" href="http://www.image-maps.com/" shape="rect" coords="350,84,474,154" style="outline:none;" target="_self"     />
+<area  alt="" title="alignment" href="http://www.image-maps.com/" shape="rect" coords="350,214,490,260" style="outline:none;" target="_self"     />
+<area  alt="" title="sort" href="http://www.image-maps.com/" shape="rect" coords="349,315,491,355" style="outline:none;" target="_self"     />
+<area  alt="" title="clean_data" href="http://www.image-maps.com/" shape="rect" coords="345,411,490,457" style="outline:none;" target="_self"     />
+<area  alt="" title="unique_reads" href="http://www.image-maps.com/" shape="rect" coords="344,512,490,566" style="outline:none;" target="_self"     />
+<area  alt="" title="remove_unmapped" href="http://www.image-maps.com/" shape="rect" coords="345,627,490,680" style="outline:none;" target="_self"     />
+<area  alt="" title="remove_black-listed" href="http://www.image-maps.com/" shape="rect" coords="342,736,492,790" style="outline:none;" target="_self"     />
+<area  alt="" title="call_peaks_bed" href="http://www.image-maps.com/" shape="rect" coords="174,830,395,1017" style="outline:none;" target="_self"     />
+<area  alt="" title="call_peaks_bedpe" href="http://www.image-maps.com/" shape="rect" coords="424,832,646,1020" style="outline:none;" target="_self"     />
+<area  alt="" title="bin_reads" href="http://www.image-maps.com/" shape="rect" coords="557,469,789,706" style="outline:none;" target="_self"     />
+<area  alt="" title="fastqc" href="http://www.image-maps.com/" shape="rect" coords="142,151,286,199" style="outline:none;" target="_self"     />
+<area shape="rect" coords="792,1056,794,1058" alt="Image Map" style="outline:none;" title="Image Map" href="http://www.image-maps.com/index.php?aff=mapped_users_0" />
+</map>
 ###Software Requirements
 -------------------------
 * Python minimum version requirement 2.7.6 

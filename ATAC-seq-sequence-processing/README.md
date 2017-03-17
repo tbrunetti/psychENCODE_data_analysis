@@ -1,12 +1,12 @@
-#ATAC-seq-analysis-pipeline-version2.py and ATAC-seq-analysis-pipeline-version3-bedpe.py
+# ATAC-seq-analysis-pipeline-version2.py and ATAC-seq-analysis-pipeline-version3-bedpe.py
 ------------------------------------------------------------------------------------------
 A pipeline to process ATAC-seq data and generate peak files of chromatin accessibility.  In version2, peaks called are processed using single-end reads despite inputing paired-end data.  Version3-bedpe, generates peaks using paired-end data information.
 
-###Overview
+### Overview
 -----------
 ![Alt text](https://github.com/tbrunetti/psychENCODE_data_analysis/blob/master/ATAC-seq-sequence-processing/ATAC-seq-pipeline-overview.jpg)
 
-###Software Requirements
+### Software Requirements
 -------------------------
 * Python minimum version requirement 2.7.6 
 * chunkypipes (http://chunky-pipes.readthedocs.io/en/stable/getting_started.html)
@@ -20,7 +20,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
   * must be version >=2.25.0
 * macs2 (https://pypi.python.org/pypi/MACS2)
 
-###User Generated/Provided File Requirements
+### User Generated/Provided File Requirements
 ----------------------------------------------
 * fasta of reference genome indexed by bwa
 * bed file of blacklisted genomic regions
@@ -29,7 +29,7 @@ A pipeline to process ATAC-seq data and generate peak files of chromatin accessi
 * genome size file (i.e. chrID followed by size_of_chromosome)
   * This file can be downloaded from UCSC
 
-###Installation and Configuration
+### Installation and Configuration
 ----------------------------------
 Either download the pipleline version that would like to be used or clone the repository into your own directory. 
 ```
@@ -71,7 +71,7 @@ Configuration file successfully written.
 ```
 The user will notice that once the information is recorded, chunkypipes will state "Configuration file successfully written" to notify the user the configuration has been successfully modified and  saved. This file only needs to be configured once, unless the paths to these files has changed or if a different number of threads is to be used.
 
-###Running the Pipeline
+### Running the Pipeline
 -------------------------
 Both pipelines are equipped with a -h or --help flag for details on default parameters and user options.  An example of how to use this is shown below:
 ```
@@ -128,7 +128,7 @@ MACS2 is called a total of 4 times.  Twice for BED and twice for BEDPE.  Note th
     * --broad
     * --keep-dup all
 
-###Pipeline Output
+### Pipeline Output
 ------------------
 __***sample_name.<int>.bam***__ is the most unprocessed bam file with no altercations or cleaning  
 __***sample.name.processed.bam***__ is the most processed bam file and is the bam ultimately used for all end analysis  

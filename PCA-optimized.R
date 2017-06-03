@@ -1,19 +1,22 @@
 # if using half-rack VM, enviromental proxy setting is required
-#Sys.setenv(http_proxy="http://cloud-proxy:3128")
-#Sys.setenv(https_proxy="http://cloud-proxy:3128")
+Sys.setenv(http_proxy="http://cloud-proxy:3128")
+Sys.setenv(https_proxy="http://cloud-proxy:3128")
+options(BioC_mirror="http://master.bioconductor.org")
+source("http://master.bioconductor.org/biocLite.R")
+
 #prcomp is used instread of princomp here to perform PCA since:
 # 1) princomp is limited to experiments where observations >> variables
 # 2) prcomp can be used to easily visualize clusters using PCs and metadata
 
 # ggfortify and ggplot are required for plotting and clustering PCs to metadatas
-library(ggfortify)
+#library(ggfortify)
 library(ggplot2)
 library(data.table)
 library(gplots)
 
 # output_file is the name of the PDF the user would like to create and write to
 # the pdf() function actually creates the pdf
-output_file = "/data/users/tbrunetti/psychENCODE-differential-new/test-UC-UIC-RNAseq-BP-SCZ-noControl-raw-gene-counts-data-only.pdf"
+output_file = "/mnt/de_control_bp/test-UC-UIC-RNAseq-BP-control-subset-raw-gene-counts-data-only.pdf"
 pdf(file = output_file)
 
 # counts_file is the FULL path to the counts matrix in CSV format--MUST HAVE HEADER AND ROW NAMES!!!
@@ -25,8 +28,8 @@ pdf(file = output_file)
 #             headers should be the name of the metadata measurement (i.e. sex, diagnosis, chrM contamination, etc...)
 # to keep it straight, it makes sense to have n x m counts files and a m x u because the matrices can be multiplied since
 # their inner components are the same dimensions ( nxm matrix [dotproduct] mxu matrix = nxu matrix)
-counts_file = "/data/users/tbrunetti/psychENCODE-differential-new/express_effective_counts_matrix_rounded_gene_level.csv"
-meta_file = "/data/users/tbrunetti/psychENCODE-differential-new/synapse-meta-clinical-technical-data-BrainGVEX-RNAseq-TonyaCurrated-V2-MISSING-DATA-FILLED-WITH-AVERAGES.csv"
+counts_file = "/mnt/express_effective_counts_matrix_rounded_gene_level.csv"
+meta_file = "/mnt/synapse-meta-clinical-technical-data-BrainGVEX-RNAseq-TonyaCurrated-V2-MISSING-DATA-FILLED-WITH-AVERAGES.csv"
 
 # read in gene expression table and metadata row.names needs to be set to the column number where the row names are listed
 # it is important to set check.names=FALSE so that R doesn't try to change any numerical names into odd characters
@@ -54,12 +57,12 @@ metadata_dataframe <- metadata_dataframe[!rownames(metadata_dataframe) %in% c('n
 # in the metadata_to_be_removed variable you can indicate in which() statment the column with the specified variable
 # of all the samples to remove for analysis.  For example, in this case we go to the column 'Diagnosis' and remove
 # all samples that are listed as 'Control'.  This can be changed to anything.
-#metadata_to_be_removed <- metadata_dataframe[which(metadata_dataframe$Diagnosis=='Control'), ]
-#sample_removal <- levels(droplevels(metadata_to_be_removed$BID))
-#transformed_dataframe <-transformed_dataframe[,-which(names(transformed_dataframe) %in% sample_removal)]
-#metadata_dataframe <- metadata_dataframe[!rownames(metadata_dataframe) %in% sample_removal, ]
-#print("Samples to be removed from counts matrix and metadata")
-#print(sample_removal)
+metadata_to_be_removed <- metadata_dataframe[which(metadata_dataframe$Diagnosis=='SCZ'), ]
+sample_removal <- levels(droplevels(metadata_to_be_removed$BID))
+transformed_dataframe <-transformed_dataframe[,-which(names(transformed_dataframe) %in% sample_removal)]
+metadata_dataframe <- metadata_dataframe[!rownames(metadata_dataframe) %in% sample_removal, ]
+print("Samples to be removed from counts matrix and metadata")
+print(sample_removal)
 
 
 #remove rows that have a sum of zero
@@ -346,21 +349,47 @@ for (pc in seq(1,dim(pca_matrix$rotation)[2])){
   linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(as.factor(metadata_sorted[,'FlowcellBatch'])))
   pca_matrix$x[,pc]  <- linear_model$residuals
 }
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: FlowcellBatch", side=3, line=0)
+
+
 # regress out Sex
 for (pc in seq(1,dim(pca_matrix$rotation)[2])){
   linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(as.factor(metadata_sorted[,'Sex'])))
   pca_matrix$x[,pc]  <- linear_model$residuals
 }
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: Sex", side=3, line=0)
+
+
 # regress out 5 prime to 3 prime bias
 for (pc in seq(1,dim(pca_matrix$rotation)[2])){
   linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'UF_MEDIAN_5PRIME_TO_3PRIME_BIAS']))
   pca_matrix$x[,pc]  <- linear_model$residuals
 }
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed:  UF 5-3 bias", side=3, line=0)
+
 # regress out RIN
 for (pc in seq(1,dim(pca_matrix$rotation)[2])){
   linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'RIN']))
   pca_matrix$x[,pc]  <- linear_model$residuals
 }
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: RIN", side=3, line=0)
+
 # regress out PMI
 for (pc in seq(1,dim(pca_matrix$rotation)[2])){
   linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'PMI']))
@@ -370,6 +399,47 @@ for (pc in seq(1,dim(pca_matrix$rotation)[2])){
 # call function again on regressed out variables
 model_pcs(pca_matrix)
 # writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
-mtext("vars regressed: FlowcellBatch, Sex, UF 5-3 bias, RIN, PMI", side=3, line=0)
+mtext("vars regressed: PMI",side=3, line=0)
+
+# regress out AgeDeath
+for (pc in seq(1,dim(pca_matrix$rotation)[2])){
+  linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'AgeDeath']))
+  pca_matrix$x[,pc]  <- linear_model$residuals
+}
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: AgeDeath", side=3, line=0)
+
+
+# regress out TissueState
+for (pc in seq(1,dim(pca_matrix$rotation)[2])){
+  linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'TissueState']))
+  pca_matrix$x[,pc]  <- linear_model$residuals
+}
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: TissueState", side=3, line=0)
+
+# regress out BrainBank
+for (pc in seq(1,dim(pca_matrix$rotation)[2])){
+  linear_model <- lm(pca_matrix$x[,pc] ~ na.omit(metadata_sorted[,'BrainBank']))
+  pca_matrix$x[,pc]  <- linear_model$residuals
+}
+
+# call function again on regressed out variables
+model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+mtext("vars regressed: BrainBank", side=3, line=0)
 # saves and closes newly created PDF
 dev.off()
+
+# call function again on regressed out variables
+#model_pcs(pca_matrix)
+# writes the variables that were regressed out, NOTE this must be changed manually!!!!!!
+#mtext("vars regressed: FlowcellBatch, Sex, UF 5-3 bias, RIN, PMI, AgeDeath, TissueState, BrainBank", side=3, line=0)
+# saves and closes newly created PDF
+#dev.off()
